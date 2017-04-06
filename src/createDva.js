@@ -36,8 +36,11 @@ export default function createDva(createOpts) {
     // history and initialState does not pass to plugin
     const history = hooks.history || defaultHistory;
     const initialState = hooks.initialState || {};
+    const globalReducer = hooks.globalReducer || {};
+
     delete hooks.history;
     delete hooks.initialState;
+    delete hooks.globalReducer;
 
     const plugin = new Plugin();
     plugin.use(hooks);
@@ -226,11 +229,11 @@ export default function createDva(createOpts) {
       );
 
       function createReducer(asyncReducers) {
-        return reducerEnhancer(combineReducers({
+        return reducerEnhancer(wrapGlobalReducers(combineReducers({
           ...reducers,
           ...extraReducers,
           ...asyncReducers,
-        }));
+        }), globalReducer));
       }
 
       // extend store
@@ -497,6 +500,16 @@ export default function createDva(createOpts) {
         effect = fn(effect, sagaEffects, model, key);
       }
       return effect;
+    }
+
+    function wrapGlobalReducers(combineReducerResult, globalReducer) {
+      return (state = {}, action) => {
+        if (globalReducer.hasOwnProperty(action.type)) {
+          return globalReducer[action.type]();
+        }
+
+        return combineReducerResult(state, action);
+      }
     }
   };
 }

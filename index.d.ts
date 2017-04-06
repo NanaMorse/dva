@@ -32,6 +32,9 @@ export interface Hooks {
 export type DvaOption = Hooks & {
   initialState?: Object;
   history?: Object;
+  globalReducer?: {
+    [index: string]: <T>(state: T, param: Object) => T
+  };
 }
 
 export interface EffectsCommandMap {
