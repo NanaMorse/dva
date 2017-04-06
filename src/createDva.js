@@ -505,7 +505,7 @@ export default function createDva(createOpts) {
     function wrapGlobalReducers(combineReducerResult, globalReducer) {
       return (state = {}, action) => {
         if (globalReducer.hasOwnProperty(action.type)) {
-          return globalReducer[action.type]();
+          return globalReducer[action.type](state, action);
         }
 
         return combineReducerResult(state, action);
